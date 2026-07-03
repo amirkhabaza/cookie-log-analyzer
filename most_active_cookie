@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""CLI entry point for finding the most active cookie(s) on a given UTC date."""
+
+import argparse
+import sys
+
+from cookie_analyzer import get_most_active_cookies
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Find the most active cookie(s) for a given UTC date."
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        required=True,
+        help="Path to the cookie log CSV file",
+    )
+    parser.add_argument(
+        "-d",
+        "--date",
+        required=True,
+        help="Target date in YYYY-MM-DD format (UTC)",
+    )
+    args = parser.parse_args()
+
+    try:
+        cookies = get_most_active_cookies(args.file, args.date)
+    except FileNotFoundError:
+        print(f"Error: file not found: {args.file}", file=sys.stderr)
+        return 1
+    except OSError as exc:
+        print(f"Error: cannot read file: {exc}", file=sys.stderr)
+        return 1
+
+    for cookie in cookies:
+        print(cookie)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
